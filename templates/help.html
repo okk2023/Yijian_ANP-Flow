@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1></h1>
+
+    <h4>如需帮助，请联系我们 <a href="mailto:hongchen@tsinghua.edu.cn">Email</a></h4>
+
+</div>
+
+
+<div class="container mt-5">
+    <h1 class="mb-4">Process Monitor</h1>
+
+    <div class="mb-3">
+        <button id="startBtn" class="btn btn-primary">Start</button>
+        <button id="stopBtn" class="btn btn-danger">Stop</button>
+    </div>
+
+    <div class="mb-3">
+        <h4>Output:</h4>
+        <div id="output"></div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        let outputInterval;
+        const outputDiv = $('#output');
+
+        // 开始按钮点击事件
+        $('#startBtn').click(function() {
+            $.post('/start', function(response) {
+                if (response.status === 'success') {
+                    // 开始轮询获取输出
+                    outputInterval = setInterval(fetchOutput, 1000);
+                } else {
+                    alert(response.message);
+                }
+            }).fail(function() {
+                alert('Failed to start process');
+            });
+        });
+
+        // 停止按钮点击事件
+        $('#stopBtn').click(function() {
+            clearInterval(outputInterval);
+            $.post('/stop');
+        });
+
+        // 获取输出函数
+        function fetchOutput() {
+            $.get('/get_output', function(data) {
+                // 更新输出区域
+                outputDiv.text(data.output.join('\n'));
+                // 自动滚动到底部
+                outputDiv.scrollTop(outputDiv[0].scrollHeight);
+            });
+        }
+    });
+</script>
+
+<!-- 水印效果 -->
+<div class="watermark-container">
+    <img src="/static/images/tsinghua-logo.png" alt="水印" class="watermark">
+</div>
+
+<style>
+.watermark-container {
+    position: relative;
+    width: 500%;
+    height: 500%;
+}
+
+.watermark {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 450px;
+    height: auto;
+    opacity: 0.3;
+    z-index: 9999;
+    pointer-events: none;
+    user-select: none;
+    max-width: 25vw;
+    max-height: 40vh;
+    object-fit: contain;
+}
+
+.watermark:hover {
+    opacity: 0.5;
+}
+</style>
+{% endblock %}

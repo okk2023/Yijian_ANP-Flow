@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>设计空间探索</h1>
+            <a href="/" class="btn btn-outline-primary">返回首页</a>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">任务设置</h2>
+
+                <form id="task1Form">
+                    <!-- 参数3选择 -->
+                    <div class="mb-3">
+                        <label for="param4" class="form-label">探索任务数据集选择:</label>
+                        <select class="form-select" id="param4" name="param4" required>
+                            <option value="" selected disabled>请选择探索任务</option>
+                            {% for option in params.param4 %}
+                            <option value="{{ option }}">{{ option }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- 四个相互约束的滑动条 -->
+                    <div class="mb-4">
+                        <h5 class="mb-3">探索任务优化方向权重 (总和必须为100%)</h5>
+                        <div class="allocation-container">
+                            <!-- CPU分配 -->
+                            <div class="mb-3 allocation-item" data-color="#4e79a7">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-bold">算法准确率 Accuracy:</span>
+                                    <span class="value-display">25%</span>
+                                </div>
+                                <input type="range" class="form-range allocation-slider"
+                                       name="cpu" min="0" max="100" value="25"
+                                       data-original-value="25">
+                            </div>
+
+                            <!-- 内存分配 -->
+                            <div class="mb-3 allocation-item" data-color="#f28e2b">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-bold">芯片延时性能 Performance:</span>
+                                    <span class="value-display">25%</span>
+                                </div>
+                                <input type="range" class="form-range allocation-slider"
+                                       name="memory" min="0" max="100" value="25"
+                                       data-original-value="25">
+                            </div>
+
+                            <!-- GPU分配 -->
+                            <div class="mb-3 allocation-item" data-color="#e15759">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-bold">芯片计算功耗 Power:</span>
+                                    <span class="value-display">25%</span>
+                                </div>
+                                <input type="range" class="form-range allocation-slider"
+                                       name="gpu" min="0" max="100" value="25"
+                                       data-original-value="25">
+                            </div>
+
+                            <!-- 存储分配 -->
+                            <div class="mb-3 allocation-item" data-color="#76b7b2">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-bold">芯片面积 Area:</span>
+                                    <span class="value-display">25%</span>
+                                </div>
+                                <input type="range" class="form-range allocation-slider"
+                                       name="storage" min="0" max="100" value="25"
+                                       data-original-value="25">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="total-display">
+                                当前权重总和: <span id="totalValue">100</span>%
+                            </div>
+                            <button type="button" id="resetAllocation" class="btn btn-sm btn-outline-secondary">
+                                重置分配
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">执行任务</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">执行结果</h2>
+                <div id="task1Output" class="output-area">等待执行...</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // 初始化滑块样式
+        function initSliderStyles() {
+            $('.allocation-item').each(function() {
+                const color = $(this).data('color');
+                const slider = $(this).find('.allocation-slider')[0];
+
+                // 设置自定义滑块颜色
+                slider.style.setProperty('--slider-color', color);
+
+                // 更新显示值
+                const display = $(this).find('.value-display');
+                display.text(slider.value + '%');
+            });
+        }
+
+        // 计算总和
+        function calculateTotal() {
+            let total = 0;
+            $('.allocation-slider').each(function() {
+                total += parseInt(this.value);
+            });
+            return total;
+        }
+
+        // 更新UI状态
+        function updateUI() {
+            const total = calculateTotal();
+            $('#totalValue').text(total);
+
+            if (total > 100) {
+                $('#totalValue').addClass('text-danger');
+                $('.allocation-slider').addClass('border-danger');
+            } else {
+                $('#totalValue').removeClass('text-danger');
+                $('.allocation-slider').removeClass('border-danger');
+            }
+        }
+
+        // 滑块变化处理
+        $('.allocation-slider').on('input', function() {
+            const total = calculateTotal();
+            const originalValue = parseInt($(this).data('original-value'));
+            const currentValue = parseInt(this.value);
+            const delta = currentValue - originalValue;
+
+            // 如果总和超过100，调整其他滑块
+            if (total > 100) {
+                const excess = total - 100;
+                let remaining = excess;
+
+                // 按比例减少其他滑块的值
+                $('.allocation-slider').not(this).each(function() {
+                    if (remaining <= 0) return;
+
+                    const otherValue = parseInt(this.value);
+                    const reduction = Math.min(remaining, otherValue);
+                    this.value = otherValue - reduction;
+                    remaining -= reduction;
+
+                    // 更新显示
+                    $(this).siblings('.d-flex').find('.value-display').text(this.value + '%');
+                });
+
+                // 如果还有剩余，只能减少当前滑块
+                if (remaining > 0) {
+                    this.value = currentValue - remaining;
+                }
+            }
+
+            // 更新原始值记录
+            $(this).data('original-value', this.value);
+
+            // 更新显示
+            $(this).siblings('.d-flex').find('.value-display').text(this.value + '%');
+
+            // 更新UI状态
+            updateUI();
+        });
+
+        // 重置分配
+        $('#resetAllocation').click(function() {
+            $('.allocation-slider').each(function() {
+                this.value = 25;
+                $(this).data('original-value', 25);
+                $(this).siblings('.d-flex').find('.value-display').text('25%');
+            });
+            updateUI();
+        });
+
+        // 表单提交处理
+        $('#task1Form').submit(function(e) {
+            e.preventDefault();
+
+            // 检查总和是否为100%
+            if (calculateTotal() !== 100) {
+                $('#task1Output').html('<span class="text-danger">错误: 资源分配总和必须为100%</span>');
+                return;
+            }
+
+            $('#task1Output').text('执行中...');
+
+            // 获取所有表单数据
+            const formData = $(this).serialize();
+
+            $.post('/run_task1', formData, function(data) {
+                if(data.success) {
+                    let output = data.output || '任务执行完成，无输出';
+                    if(data.error) {
+                        output += '\n错误信息:\n' + data.error;
+                    }
+                    // 添加资源分配信息
+                    output += '\n\n资源分配:';
+                    output += '\nCPU: ' + $('[name="cpu"]').val() + '%';
+                    output += '\n内存: ' + $('[name="memory"]').val() + '%';
+                    output += '\nGPU: ' + $('[name="gpu"]').val() + '%';
+                    output += '\n存储IO: ' + $('[name="storage"]').val() + '%';
+
+                    $('#task1Output').text(output);
+                } else {
+                    $('#task1Output').text('错误: ' + data.error);
+                }
+            }).fail(function() {
+                $('#task1Output').text('请求失败，请检查网络连接');
+            });
+        });
+
+        // 初始化
+        initSliderStyles();
+        updateUI();
+    });
+</script>
+
+<style>
+    /* 自定义滑动条样式 */
+    .allocation-slider {
+        height: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+        border: 2px solid transparent;
+        transition: border-color 0.2s;
+    }
+
+    .allocation-slider.border-danger {
+        border-color: #dc3545 !important;
+    }
+
+    /* 不同颜色的滑块 */
+    .allocation-slider::-webkit-slider-thumb {
+        background: var(--slider-color);
+        width: 20px;
+        height: 20px;
+    }
+
+    .allocation-slider::-moz-range-thumb {
+        background: var(--slider-color);
+        width: 20px;
+        height: 20px;
+    }
+
+    .allocation-slider::-ms-thumb {
+        background: var(--slider-color);
+        width: 20px;
+        height: 20px;
+    }
+
+    /* 滑块轨道 */
+    .allocation-slider::-webkit-slider-runnable-track {
+        background: #e9ecef;
+        height: 10px;
+        border-radius: 5px;
+    }
+
+    .allocation-slider::-moz-range-track {
+        background: #e9ecef;
+        height: 10px;
+        border-radius: 5px;
+    }
+
+    .allocation-slider::-ms-track {
+        background: #e9ecef;
+        height: 10px;
+        border-radius: 5px;
+    }
+
+    /* 数值显示 */
+    .value-display {
+        font-family: monospace;
+        min-width: 40px;
+        text-align: right;
+    }
+
+    .total-display {
+        font-weight: bold;
+    }
+
+    /* 参数标签 */
+    .allocation-item .fw-bold {
+        color: var(--slider-color);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>异步电路设计</h1>
+            <a href="/" class="btn btn-outline-primary">返回首页</a>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">开源异步电路设计库</h2>
+
+                <p class="card-text">使用Chisel框架进行快捷的异步电路设计开发</p>
+                <p class="card-text">开源链接：https://github.com/Jilin-Zhang/ASYNC-Chisel</p>
+                <a href="https://github.com/Jilin-Zhang/ASYNC-Chisel" class="btn btn-primary">跳转设计库</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 水印效果 -->
+<div class="watermark-container">
+    <img src="/static/images/tsinghua-logo.png" alt="水印" class="watermark">
+</div>
+
+<style>
+.watermark-container {
+    position: relative;
+    width: 500%;
+    height: 500%;
+}
+
+.watermark {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 450px;
+    height: auto;
+    opacity: 0.3;
+    z-index: 9999;
+    pointer-events: none;
+    user-select: none;
+    max-width: 25vw;
+    max-height: 40vh;
+    object-fit: contain;
+}
+
+.watermark:hover {
+    opacity: 0.5;
+}
+</style>
+{% endblock %}

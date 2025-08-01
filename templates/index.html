@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto text-center mb-5">
+        <h1>欢迎使用异步类脑工具链 易思(ANP-Flow)</h1>
+        <p class="lead">请选择要执行的任务</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- 任务1 -->
+    <div class="col-md-6 mb-4">
+        <div class="card task-card h-100">
+            <div class="card-body text-center">
+                <h2 class="card-title">设计空间探索</h2>
+                <p class="card-text">使用基于强化学习的设计空间探索框架，获得给定条件下的最优算法-硬件设计方案</p>
+                <a href="/exploration" class="btn btn-primary">开始</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 任务2 -->
+    <div class="col-md-6 mb-4">
+        <div class="card task-card h-100">
+            <div class="card-body text-center">
+                <h2 class="card-title">系统级建模仿真</h2>
+                <p class="card-text">使用基于Akka Actor并发框架的系统级仿真器，获得指定架构的异步类脑芯片预期延时性能、功耗及面积</p>
+                <a href="/simulation" class="btn btn-primary">开始</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 任务3 -->
+    <div class="col-md-6 mb-4">
+        <div class="card task-card h-100">
+            <div class="card-body text-center">
+                <h2 class="card-title">异步电路设计</h2>
+                <p class="card-text">使用Chisel框架进行快捷的异步电路设计开发</p>
+                <a href="https://github.com/Jilin-Zhang/ASYNC-Chisel" class="btn btn-primary">获取设计库</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 任务4 -->
+    <div class="col-md-6 mb-4">
+        <div class="card task-card h-100">
+            <div class="card-body text-center">
+                <h2 class="card-title">异步类脑编译器</h2>
+                <p class="card-text">使用基于LLVM框架的编译优化工具，获得最佳资源配置方案，并直接应用于芯片</p>
+                <a href="/compilation" class="btn btn-primary">开始</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 水印效果 -->
+<div class="watermark-container">
+    <img src="/static/images/tsinghua-logo.png" alt="水印" class="watermark">
+</div>
+
+<style>
+.watermark-container {
+    position: relative;
+    width: 500%;
+    height: 500%;
+}
+
+.watermark {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 450px;
+    height: auto;
+    opacity: 0.3;
+    z-index: 9999;
+    pointer-events: none;
+    user-select: none;
+    max-width: 25vw;
+    max-height: 40vh;
+    object-fit: contain;
+}
+
+.watermark:hover {
+    opacity: 0.5;
+}
+</style>
+{% endblock %}
