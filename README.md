@@ -67,7 +67,7 @@ python app.py
 1. **端口占用**
 ```bash
 # 检查端口占用
-lsof -i :8020
+lsof -i :5000
 # 杀死占用进程
 kill -9 <PID>
 ```
