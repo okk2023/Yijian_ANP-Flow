@@ -1,10 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8 mx-auto text-center mb-5">
-        <h1>欢迎使用异步类脑工具链 易思(ANP-Flow)</h1>
-        <p class="lead">请选择要执行的任务</p>
+<div class="main-container">
+    <div class="row">
+        <div class="col-md-8 mx-auto text-center mb-3">
+            <h1>欢迎使用异步类脑工具链：易思(ANP-Flow)</h1>
+        </div>
+    </div>
+
+<div class="row mb-4 mt-3">
+    <div class="col-md-8 mx-auto text-center">
+        <p class="task-subtitle">请选择要执行的任务</p>
     </div>
 </div>
 
@@ -59,7 +65,18 @@
     <img src="/static/images/tsinghua-logo.png" alt="水印" class="watermark">
 </div>
 
+<!-- 底部文字 -->
+<div class="bottom-text">
+    清华大学集成电路学院异步电路课题组
+</div>
+</div>
+
 <style>
+body {
+    overflow: hidden;
+    height: 100vh;
+}
+
 .watermark-container {
     position: relative;
     width: 500%;
@@ -68,8 +85,8 @@
 
 .watermark {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    bottom: -30px;
+    right: 10px;
     width: 450px;
     height: auto;
     opacity: 0.3;
@@ -83,6 +100,34 @@
 
 .watermark:hover {
     opacity: 0.5;
+}
+
+.main-container {
+    height: 100vh;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.bottom-text {
+    position: fixed;
+    bottom: 50px;
+    left: calc(50% + 110px);
+    transform: translateX(-50%);
+    color: #666;
+    font-size: 16px;
+    font-weight: 500;
+    font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    z-index: 1000;
+    pointer-events: none;
+    user-select: none;
+}
+
+.task-subtitle {
+    color: #333;
+    font-size: 1.4rem;
+    font-weight: 500;
+    margin-bottom: 0;
 }
 </style>
 {% endblock %}
